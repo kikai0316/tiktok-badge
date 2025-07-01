@@ -1,4 +1,5 @@
 
+import asyncio
 from datetime import datetime
 import json
 import os
@@ -105,7 +106,7 @@ class GoogleSheet:
         return results
 
     
-    def write_user_data(self, user_data: Dict[str, Any]) -> str:
+    async def write_user_data(self, user_data: Dict[str, Any]) -> str:
         print("ser_dat")
         sheet_name = user_data.get("ユーザーID")
         if not sheet_name:
@@ -115,7 +116,8 @@ class GoogleSheet:
             worksheet = self.spreadsheet.worksheet(sheet_name)
         except gspread.exceptions.WorksheetNotFound:
             try:
-                worksheet = self.spreadsheet.add_worksheet(title=sheet_name, rows="100", cols="20")
+                worksheet = self.spreadsheet.add_worksheet(title=sheet_name, rows="1000", cols="20")
+                await asyncio.sleep(5)
             except Exception as e:
                 return f"シート作成に失敗しました: {e}"
 

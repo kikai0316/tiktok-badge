@@ -89,6 +89,7 @@ async def main():
                     resultMessage +=f"{status}: {count}件\n"
             
             lineManager.send_line_message(resultMessage)
+            await asyncio.sleep(5)
             aggregate_Message(googleManager,lineManager,users)
 
 
