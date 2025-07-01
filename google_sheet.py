@@ -1,3 +1,4 @@
+import json
 import os
 import gspread
 from google.oauth2.service_account import Credentials
@@ -16,7 +17,7 @@ class GoogleSheet:
                 'https://www.googleapis.com/auth/drive']
         load_dotenv()
         spreadsheet_id = os.getenv('SPREADSHEET_ID')
-        google_application_file = os.getenv('SERVICE_ACCOUNT_FILE')
+        google_application_file = json.loads(os.getenv("SERVICE_ACCOUNT_JSON"))
         credentials = Credentials.from_service_account_file(google_application_file, scopes=scope)
         gc = gspread.authorize(credentials)
         # スプレッドシートとワークシートを開く
