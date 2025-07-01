@@ -24,12 +24,10 @@ def error_write(googleManager: GoogleSheet,userId:str,errorMesse:str,result:str)
 
 
 async def main():
+    lineManager=Line()
+    googleManager=GoogleSheet()
     try:
-
         result_list=[]
-        googleManager=GoogleSheet()
-        lineManager=Line()
-
         users=googleManager.get_all_users()
         if users:
             lineManager.send_line_message("⏱️ 本日のTikTokデータの定期取得の処理を開始いたしました")
