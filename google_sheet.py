@@ -28,16 +28,51 @@ class GoogleSheet:
     
     def start_script(self) -> bool:
         try:
-            url = "https://script.google.com/macros/s/AKfycbya6QjOJyQVUUp-tMumkTo4Qf4x-qnfM4Qf10MCS-JsVuQNylu2HOBeyEGS9hQZq64d/exec"
+            url = "https://script.google.com/macros/s/AKfycbwWjGosrl_YYIpaIR903R6bGmeWziXlghdfeePnQ3SwZQrD6FsN4qL5LtExQaM6Ml4N/exec"
             payload = {
                 "action": "daily_summary"
             }
-            response = requests.post(url, data=payload)
+            
+            print("リクエスト開始...")
+            response = requests.post(url, data=payload, timeout=300)
+            
+            print(f"ステータスコード: {response.status_code}")
+            print(f"レスポンスヘッダー: {dict(response.headers)}")
+            print(f"レスポンステキスト: {response.text}")
+            
             if response.status_code == 200:
-                return True
+                try:
+                    # JSONレスポンスを解析
+                    result = response.json()
+                    print(f"JSONレスポンス: {result}")
+                    
+                    if result.get("status") == "success":
+                        print("処理成功")
+                        return True
+                    else:
+                        print(f"処理エラー: {result.get('message', 'Unknown error')}")
+                        return False
+                        
+                except ValueError as json_error:
+                    print(f"JSON解析エラー: {json_error}")
+                    # JSONでない場合は従来の成功レスポンスとみなす
+                    print("レガシーレスポンス形式として処理")
+                    return True
             else:
+                print(f"HTTPエラー: {response.status_code}")
+                print(f"エラー詳細: {response.text}")
                 return False
-        except:
+                
+        except requests.exceptions.Timeout:
+            print("タイムアウトエラー")
+            return False
+        except requests.exceptions.RequestException as req_error:
+            print(f"リクエストエラー: {req_error}")
+            return False
+        except Exception as e:
+            print(f"予期しないエラー: {e}")
+            import traceback
+            traceback.print_exc()
             return False
         
     def get_all_users(self) -> List[Tuple[str, str]]:
