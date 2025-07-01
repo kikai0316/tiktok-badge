@@ -15,12 +15,13 @@ class GoogleSheet:
         # 認証
         scope = ['https://spreadsheets.google.com/feeds', 
                 'https://www.googleapis.com/auth/drive']
-        load_dotenv()
         spreadsheet_id = os.getenv('SPREADSHEET_ID')
-        google_application_file = json.loads(os.getenv("SERVICE_ACCOUNT_JSON"))
-        credentials = Credentials.from_service_account_file(google_application_file, scopes=scope)
+        service_account_json_str = os.getenv("SERVICE_ACCOUNT_JSON")
+        if not service_account_json_str:
+            raise ValueError("環境変数 SERVICE_ACCOUNT_JSON が設定されていません")
+        service_account_info = json.loads(service_account_json_str)
+        credentials = Credentials.from_service_account_info(service_account_info, scopes=scope)
         gc = gspread.authorize(credentials)
-        # スプレッドシートとワークシートを開く
         self.spreadsheet = gc.open_by_key(spreadsheet_id)
     
 
