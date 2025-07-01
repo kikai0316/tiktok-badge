@@ -1,9 +1,10 @@
-from ast import List, Str, Tuple
+
 import asyncio
+import random
+from typing import List, Tuple
 from google_sheet import GoogleSheet
 from line import Line
 from tiktok_original import SocialBladeTikTokScraper
-import random
 from datetime import datetime
 
 
@@ -56,8 +57,8 @@ async def main():
             lineManager.send_line_message("⏱️ 本日のTikTokデータの定期取得の処理を開始いたしました")
             userIds = [user_id for user_id, _ in users]
             for userId in userIds:
-                # wait_time = random.randint(1, 54)
-                # await asyncio.sleep(wait_time)
+                wait_time = random.randint(1, 54)
+                await asyncio.sleep(wait_time)
                 try:
                     socialBlade= SocialBladeTikTokScraper()
                     data = await socialBlade.get_user_data(userId)
