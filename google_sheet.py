@@ -28,7 +28,7 @@ class GoogleSheet:
     
     def start_script(self) -> bool:
         try:
-            url = "https://script.google.com/macros/s/AKfycbzcRdagWkzW3sny43MyNSwFn5u7zJFv9DshjdeCfW3KuXcPGGpMedoGherN0l9YBq5k/exec"
+            url = "https://script.google.com/macros/s/AKfycbya6QjOJyQVUUp-tMumkTo4Qf4x-qnfM4Qf10MCS-JsVuQNylu2HOBeyEGS9hQZq64d/exec"
             payload = {
                 "action": "daily_summary"
             }
@@ -37,7 +37,6 @@ class GoogleSheet:
                 return True
             else:
                 return False
-
         except:
             return False
         
