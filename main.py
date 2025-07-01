@@ -63,7 +63,7 @@ async def main():
                     socialBlade= SocialBladeTikTokScraper()
                     data = await socialBlade.get_user_data(userId)
                     if data:
-                        message= googleManager.write_user_data(data)
+                        message= await googleManager.write_user_data(data)
                         if(message=="success"):
                             result_list.append("SUCCESS")
                         else:
