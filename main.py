@@ -76,12 +76,6 @@ async def main():
                 except Exception as e:
                     result=error_write(googleManager,userId,f"❌｜実行中のエラー{e}","PROCESS_ERR")
                     result_list.append(result)
-            
-            
-            scriptResult=googleManager.start_script()
-            if not scriptResult:
-                lineManager.send_line_message("❌ 定期取得の処理で何らかのエラーが発生しました\n\nスクリプトの実行エラー")
-                return
 
             resultMessage="✅ 本日のTikTokデータの定期取得の処理が終了しました\n"
 
