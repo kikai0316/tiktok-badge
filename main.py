@@ -54,8 +54,9 @@ async def main():
     lineManager.send_line_message("⏱️ 本日のTikTokデータの定期取得の処理を開始いたしました")
     scriptResult=googleManager.start_script()
     if not scriptResult:
-                lineManager.send_line_message("❌ 定期取得の処理で何らかのエラーが発生しました\n\nスクリプトの実行エラー")
-                return
+        lineManager.send_line_message("❌ 定期取得の処理で何らかのエラーが発生しました\n\nスクリプトの実行エラー")
+        return
+    lineManager.send_line_message("実行")
     aggregate_Message(googleManager,lineManager,users)
 
     # try:
