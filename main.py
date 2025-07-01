@@ -76,6 +76,12 @@ async def main():
                     result=error_write(googleManager,userId,f"❌｜実行中のエラー{e}","PROCESS_ERR")
                     result_list.append(result)
             
+            
+            scriptResult=googleManager.start_script()
+            if not scriptResult:
+                lineManager.send_line_message("❌ 定期取得の処理で何らかのエラーが発生しました\n\nスクリプトの実行エラー")
+                return
+
             resultMessage="✅ 本日のTikTokデータの定期取得の処理が終了しました\n"
 
             if all(result == "SUCCESS" for result in result_list):
@@ -89,7 +95,6 @@ async def main():
                     resultMessage +=f"{status}: {count}件\n"
             
             lineManager.send_line_message(resultMessage)
-            await asyncio.sleep(5)
             aggregate_Message(googleManager,lineManager,users)
 
 

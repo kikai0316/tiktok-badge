@@ -1,5 +1,4 @@
 
-import asyncio
 from datetime import datetime
 import json
 import os
@@ -7,6 +6,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 from typing import Any, Dict, List, Tuple
 from dotenv import load_dotenv
+import requests
 
 # =============================================================================
 # 設定
@@ -26,7 +26,21 @@ class GoogleSheet:
         gc = gspread.authorize(credentials)
         self.spreadsheet = gc.open_by_key(spreadsheet_id)
     
+    def start_script(self) -> bool:
+        try:
+            url = "https://script.google.com/macros/s/AKfycbzEOLyrGCWfTB8XIMlOm5x3eVqgxmbvcO7o5mcOgzPAevbuvhp6JdmErmYa8it08fum/exec"
+            payload = {
+                "action": "daily_summary"
+            }
+            response = requests.post(url, data=payload)
+            if response.status_code == 200:
+                return True
+            else:
+                return False
 
+        except:
+            return False
+        
     def get_all_users(self) -> List[Tuple[str, str]]:
         try:
             all_users_ws = self.spreadsheet.worksheet("@all_users")  # @all_users シートを取得
@@ -117,7 +131,6 @@ class GoogleSheet:
         except gspread.exceptions.WorksheetNotFound:
             try:
                 worksheet = self.spreadsheet.add_worksheet(title=sheet_name, rows="1000", cols="20")
-                await asyncio.sleep(5)
             except Exception as e:
                 return f"シート作成に失敗しました: {e}"
 
