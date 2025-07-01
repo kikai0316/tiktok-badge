@@ -82,6 +82,7 @@ class GoogleSheet:
 
                 # 指定列のデータ取得
                 score = ws.cell(row_index, 21).value  # U列
+                user_name = ws.cell(row_index, 4).value or "Unknown"  # U列
                 follower_diff = ws.cell(row_index, 13).value  # M列
                 like_diff = ws.cell(row_index, 15).value      # O列
 
@@ -93,6 +94,7 @@ class GoogleSheet:
 
                 results.append((
                     user_id,
+                    user_name,
                     to_float(score),
                     to_float(follower_diff),
                     to_float(like_diff)

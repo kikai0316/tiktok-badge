@@ -39,7 +39,7 @@ def aggregate_Message(googleManager: GoogleSheet,lineManager: Line,users: List[T
         for tags in aggregateTags:
             ranking=googleManager.get_today_user_metrics(filter_user_ids_by_tag(users,tags))
             ranking.sort(key=lambda x: x[1], reverse=True)
-            message="f{tags}のスコアランキング\n\n"
+            message=f"{tags}のスコアランキング\n\n"
             for i, (user_id, score, follower_diff, like_diff) in enumerate(ranking[:5]):
                 message +=f"\n{emojis[i]} \n🔥{score} 👥{follower_diff:+} ❤️{like_diff:+}"
             lineManager.send_line_message_contact(message)
