@@ -1,9 +1,10 @@
+
+from datetime import datetime
 import json
 import os
 import gspread
 from google.oauth2.service_account import Credentials
-from typing import Any, Dict, List, Optional
-import time
+from typing import Any, Dict, List, Tuple
 from dotenv import load_dotenv
 
 # =============================================================================
@@ -25,18 +26,83 @@ class GoogleSheet:
         self.spreadsheet = gc.open_by_key(spreadsheet_id)
     
 
-    def get_all_users(self) -> List[str]:
-        """all_users シートの A列2行目以降からすべての ms_token を取得"""
+    def get_all_users(self) -> List[Tuple[str, str]]:
         try:
-            all_users_ws = self.spreadsheet.worksheet("@all_users")  # all_users シートを取得
-            col_values = all_users_ws.col_values(1)  # A列
+            all_users_ws = self.spreadsheet.worksheet("@all_users")  # @all_users シートを取得
+            user_ids = all_users_ws.col_values(1)  # A列: ユーザーID
+            tags = all_users_ws.col_values(2)      # B列: タグなど（例: 自社, 競合 など）
 
-            all_users = [v.strip() for v in col_values[1:] if v.strip()]
+            # 2行目以降を対象（1行目はヘッダー想定）
+            all_users = [
+                (user_id.strip(), tag.strip())
+                for user_id, tag in zip(user_ids[2:], tags[2:])
+                if user_id.strip()
+            ]
             return all_users
-    
-        except Exception as e:
-            print(e)
+
+        except:
             return None
+    
+    def get_aggregate_tags(self) -> List[str]:
+        try:
+            all_users_ws = self.spreadsheet.worksheet("@all_users")  # @all_users シートを取得
+            d_column_values = all_users_ws.col_values(4)  # D列を取得
+
+            # 2行目以降を対象（1行目はヘッダー想定）
+            all_users = [
+                value.strip()
+                for value in d_column_values[1:]  # インデックス1から（2行目以降）
+                if value.strip()  # 空でない値のみ
+            ]
+            return all_users
+
+        except:
+            return None
+    
+    def get_today_user_metrics(self, user_ids: List[str]) -> List[Tuple[str, float, float, float]]:
+        today = datetime.today().strftime('%Y/%m/%d')
+        results = []
+
+        for user_id in user_ids:
+            try:
+                ws = self.spreadsheet.worksheet(user_id)
+                all_dates = ws.col_values(1)  # A列: 取得日時
+                all_status = ws.col_values(2)  # B列: 取得結果（✅ など）
+
+                # 今日 & ✅ の行を探す（2行目以降）
+                row_index = None
+                for i, (date, status) in enumerate(zip(all_dates[1:], all_status[1:]), start=2):
+                    if date.strip() == today and status.strip() == "✅":
+                        row_index = i
+                        break
+
+                if row_index is None:
+                    print(f"Skipped {user_id}: no valid row for {today}")
+                    continue
+
+                # 指定列のデータ取得
+                score = ws.cell(row_index, 21).value  # U列
+                follower_diff = ws.cell(row_index, 13).value  # M列
+                like_diff = ws.cell(row_index, 15).value      # O列
+
+                def to_float(value):
+                    try:
+                        return float(value)
+                    except:
+                        return None
+
+                results.append((
+                    user_id,
+                    to_float(score),
+                    to_float(follower_diff),
+                    to_float(like_diff)
+                ))
+
+            except Exception as e:
+                print(f"Error processing {user_id}: {e}")
+                continue
+
+        return results
 
     
     def write_user_data(self, user_data: Dict[str, Any]) -> str:

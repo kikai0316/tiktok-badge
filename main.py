@@ -1,4 +1,4 @@
-from ast import Str
+from ast import List, Str, Tuple
 import asyncio
 from google_sheet import GoogleSheet
 from line import Line
@@ -21,6 +21,29 @@ def error_write(googleManager: GoogleSheet,userId:str,errorMesse:str,result:str)
             print(message)
             return f"{result}＆WRITE_ERR"
 
+def filter_user_ids_by_tag(
+    all_users: List[Tuple[str, str]],
+    tag: str
+) -> List[str]:
+    if "@" in tag:
+        # 完全一致：例 → "自社@だいすけ"
+        return [user_id for user_id, user_tag in all_users if user_tag == tag]
+    else:
+        # 部分一致（プレフィックスが一致）：例 → "自社" ⇒ "自社", "自社@だいすけ", ...
+        return [user_id for user_id, user_tag in all_users if user_tag.startswith(tag)]
+
+def aggregate_Message(googleManager: GoogleSheet,lineManager: Line,users: List[Tuple]) -> str:
+        emojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣']
+        aggregateTags=googleManager.get_aggregate_tags()
+        for tags in aggregateTags:
+            ranking=googleManager.get_today_user_metrics(filter_user_ids_by_tag(users,tags))
+            ranking.sort(key=lambda x: x[1], reverse=True)
+            message="f{tags}のスコアランキング\n\n"
+            for i, (user_id, score, follower_diff, like_diff) in enumerate(ranking[:5]):
+                message +=f"\n{emojis[i]} \n🔥{score} 👥{follower_diff:+} ❤️{like_diff:+}"
+            lineManager.send_line_message_contact(message)
+        return ""
+
 
 
 async def main():
@@ -31,7 +54,8 @@ async def main():
         users=googleManager.get_all_users()
         if users:
             lineManager.send_line_message("⏱️ 本日のTikTokデータの定期取得の処理を開始いたしました")
-            for userId in users:
+            userIds = [user_id for user_id, _ in users]
+            for userId in userIds:
                 # wait_time = random.randint(1, 54)
                 # await asyncio.sleep(wait_time)
                 try:
@@ -64,6 +88,8 @@ async def main():
                     resultMessage +=f"{status}: {count}件\n"
             
             lineManager.send_line_message(resultMessage)
+            aggregate_Message(googleManager,lineManager,users)
+
 
         else:
             lineManager.send_line_message("⚠️ 本日のTikTokデータの定期処理は実行されませんでした。理由：ユーザーリストの取得に失敗しました。")
