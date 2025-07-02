@@ -36,7 +36,7 @@ def filter_user_ids_by_tag(
 def aggregate_Message(googleManager: GoogleSheet,lineManager: Line,users: List[Tuple]) -> str:
         emojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣']
         aggregateTags=googleManager.get_aggregate_tags()
-        lineManager.send_line_message_contact("本日のTikTokインサイト自動解析システムによる集計が完了しました。")
+        lineManager.send_line_message_contact(True,"昨日のTikTokインサイト自動解析システムによる集計が完了しました。")
         for tags in aggregateTags:
             ranking=googleManager.get_today_user_metrics(filter_user_ids_by_tag(users,tags))
             if not ranking:
