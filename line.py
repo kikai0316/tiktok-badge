@@ -34,12 +34,9 @@ class Line:
     
     def send_line_message_contact(self,is_group:bool,message: str):
         load_dotenv()
-        user_id="U7de59042ed6be5dc59133926d95d6aea"
-        # os.getenv('LINE_USER_ID')
-        group_id="C89ba7780d9e4720e9757d02fdb474fae"
-        
-        token="jbDcZ5OgkYaFXBr9qKY+WiGBA8uxIOd272tuDlRYXZVmmAC+oazWlSWpGpKR2HVLY31vX4U1RYT3+ziQ5mC5lBB/ygZRA6j+t4ICj8cRyrXLq/J9JqWkLT65Jh6SuXoapYEv/4120tgtHiMpUZCxQQdB04t89/1O/w1cDnyilFU="
-        # os.getenv('LINE_TOKEN_CONTACT')
+        user_id=os.getenv('LINE_USER_ID')
+        group_id=os.getenv('LINE_GROUP_ID')
+        token=os.getenv('LINE_TOKEN_CONTACT')
         to_id = group_id if is_group else user_id
         url = "https://api.line.me/v2/bot/message/push"
         headers = {
