@@ -26,8 +26,7 @@ class Utils:
             f"{base}@{fmt(one_month_ago)}",
         ]
     
-    def enrich_log_data(self,
-        tag:str,                
+    def enrich_log_data(self,              
         getdata: Dict[str, Any],
         yesterday_log: Optional[Dict[str, Any]],
         one_month_ago_log: Optional[Dict[str, Any]],
@@ -36,9 +35,6 @@ class Utils:
         # 日付変換
         today = datetime.strptime(getdata["取得日時"], "%Y/%m/%d")
         created = datetime.strptime(getdata["アカウント作成日"], "%Y/%m/%d")
-
-        # タグ
-        enriched["tag"] = tag
 
         # 動画 / 月（K列）
         month_diff = (today.year - created.year) * 12 + (today.month - created.month)
