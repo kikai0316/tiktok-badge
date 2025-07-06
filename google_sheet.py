@@ -26,121 +26,84 @@ class GoogleSheet:
         gc = gspread.authorize(credentials)
         self.spreadsheet = gc.open_by_key(spreadsheet_id)
         
-    def get_all_users(self) -> List[Tuple[str, str]]:
-        try:
-            all_users_ws = self.spreadsheet.worksheet("@all_users")  # @all_users シートを取得
-            user_ids = all_users_ws.col_values(1)  # A列: ユーザーID
-            tags = all_users_ws.col_values(2)      # B列: タグなど（例: 自社, 競合 など）
 
-            # 2行目以降を対象（1行目はヘッダー想定）
-            all_users = [
-                (user_id.strip(), tag.strip())
-                for user_id, tag in zip(user_ids[2:], tags[2:])
-                if user_id.strip()
-            ]
-            return all_users
-
-        except:
-            return None
-    
-    def get_aggregate_tags(self) -> List[str]:
-        try:
-            all_users_ws = self.spreadsheet.worksheet("@all_users")  # @all_users シートを取得
-            d_column_values = all_users_ws.col_values(4)  # D列を取得
-
-            # 2行目以降を対象（1行目はヘッダー想定）
-            all_users = [
-                value.strip()
-                for value in d_column_values[1:]  # インデックス1から（2行目以降）
-                if value.strip()  # 空でない値のみ
-            ]
-            return all_users
-
-        except:
-            return None
-    
-    def get_today_user_metrics(self, user_ids: List[str]) -> List[Tuple[str, float, float, float]]:
-        today = datetime.today().strftime('%Y/%m/%d')
-        results = []
-
-        for user_id in user_ids:
+    async def write_ranking_data(self, ranking_data: Dict[str, List[Dict[str, Any]]]) -> bool:
+        COLUMN_ORDER = [
+            "取得日時",           # A
+            "タグ",              # B  
+            "表示名",            # C
+            "ユーザーID",         # D
+            "フォロワー",         # E
+            "フォロー中",         # F
+            "動画数",            # G
+            "総いいね数",         # H
+            "アカウント作成日",    # I
+            "動画 / 月",         # J
+            "いいね / 動画",      # K
+            "フォロワー前日比",    # L
+            "動画数前日比",       # M
+            "総いいね数前日比",    # N
+            "動画/月前日比",      # O
+            "いいね/動画前日比",   # P
+            "フォロワー前月比",    # Q
+            "動画 / 月 前月比",   # R
+            "いいね / 動画 前月比", # S
+            "成長トレンドスコア"   # T
+        ]
+        
+        for tag_name, user_list in ranking_data.items():
             try:
-                ws = self.spreadsheet.worksheet(user_id)
-                all_dates = ws.col_values(1)  # A列: 取得日時
-                all_status = ws.col_values(2)  # B列: 取得結果（✅ など）
-
-                # 今日 & ✅ の行を探す（2行目以降）
-                row_index = None
-                for i, (date, status) in enumerate(zip(all_dates[1:], all_status[1:]), start=2):
-                    if date.strip() == today and status.strip() == "✅":
-                        row_index = i
-                        break
-
-                if row_index is None:
-                    print(f"Skipped {user_id}: no valid row for {today}")
-                    continue
-
-                # 指定列のデータ取得
-                score = ws.cell(row_index, 21).value  # U列
-                user_name = ws.cell(row_index, 4).value or "Unknown"  # U列
-                follower_diff = ws.cell(row_index, 13).value  # M列
-                like_diff = ws.cell(row_index, 15).value      # O列
-
-                def to_float(value):
+                # シート取得または作成
+                sheet_name = tag_name
+                try:
+                    worksheet = self.spreadsheet.worksheet(sheet_name)
+                except gspread.exceptions.WorksheetNotFound:
                     try:
-                        return float(value)
-                    except:
-                        return None
-
-                results.append((
-                    user_id,
-                    user_name,
-                    to_float(score),
-                    to_float(follower_diff),
-                    to_float(like_diff)
-                ))
-
-            except Exception as e:
-                print(f"Error processing {user_id}: {e}")
-                continue
-
-        return results
-
-    
-    async def write_user_data(self, user_data: Dict[str, Any]) -> str:
-        print("ser_dat")
-        sheet_name = user_data.get("ユーザーID")
-        if not sheet_name:
-            return "表示名が指定されていません"
-
-        try:
-            worksheet = self.spreadsheet.worksheet(sheet_name)
-        except gspread.exceptions.WorksheetNotFound:
-            try:
-                worksheet = self.spreadsheet.add_worksheet(title=sheet_name, rows="1000", cols="20")
-            except Exception as e:
-                return f"シート作成に失敗しました: {e}"
-
-        try:
-            existing_headers = worksheet.row_values(1)
-            if not existing_headers:
-                headers = list(user_data.keys())
-                worksheet.update("A1", [headers])
-            else:
-                headers = existing_headers
-        except Exception as e:
-            return f"ヘッダー確認失敗: {e}"
-
-        # 値を headers に合わせて並べる（空欄補完含む）
-        values = [user_data.get(h, "") for h in headers]
-
-        try:
-            next_row = len(worksheet.get_all_values()) + 1
-            worksheet.update(f"A{next_row}", [values])
-            return "success"
-        except Exception as e:
-            return f"データ書き込み失敗（シート: {sheet_name}）: {e}"
-
+                        worksheet = self.spreadsheet.add_worksheet(title=sheet_name, rows="1000", cols="20")
+                    except Exception:
+                        return False
+                
+                # ヘッダー設定
+                try:
+                    existing_headers = worksheet.row_values(1)
+                    if not existing_headers or existing_headers != COLUMN_ORDER:
+                        worksheet.update("A1", [COLUMN_ORDER])
+                except Exception:
+                    return False
+                
+                # 既存データをクリア（ヘッダー以外）
+                try:
+                    existing_data = worksheet.get_all_values()
+                    if len(existing_data) > 1:
+                        clear_range = f"A2:T{len(existing_data)}"
+                        worksheet.batch_clear([clear_range])
+                except Exception:
+                    return False
+                
+                # データ準備
+                data_rows = []
+                for user_data in user_list:
+                    row_data = []
+                    for column in COLUMN_ORDER:
+                        value = user_data.get(column, "")
+                        if isinstance(value, (int, float)):
+                            row_data.append(str(value))
+                        else:
+                            row_data.append(str(value) if value is not None else "")
+                    data_rows.append(row_data)
+                
+                # データ書き込み
+                if data_rows:
+                    try:
+                        range_name = f"A2:T{len(data_rows) + 1}"
+                        worksheet.update(range_name, data_rows)
+                    except Exception:
+                        return False
+            
+            except Exception:
+                return False
+        
+        return True
 
 def main():
     """使用例"""

@@ -54,16 +54,7 @@ class SocialBladeTikTokScraper:
             self.driver = None
             self.wait = None
     
-    async def get_user_data(self, username):
-        """
-        TikTokユーザーのデータを取得
-        
-        Args:
-            username (str): TikTokのユーザー名（@マークなし）
-            
-        Returns:
-            dict: ユーザーデータ
-        """
+    async def get_user_data(self, username:str,tag:str):
         try:
             # ドライバーを設定
             self._setup_driver()
@@ -74,17 +65,14 @@ class SocialBladeTikTokScraper:
             
             # ページが完全に読み込まれるまで待機
             await asyncio.sleep(5)
-            
+
             # データ抽出
             data = {}
-            
+
             # ユーザー名の取得
             try:
                 username_element = self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "h3 span.truncate")))
-                
-                data["取得日時"] = datetime.now().strftime("%Y/%m/%d").strip()
-                data["取得結果"] = "✅"
-                data["タグ"] = ""
+                data["タグ"] = tag
                 data["表示名"] = username_element.text
             except:
                 try:
