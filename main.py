@@ -44,18 +44,24 @@ async def main():
         
         # 今日のデータ、昨日、１っヶ月前のデータをもとに、今日の記録を作成する
         for id, tag in users:
+            lineManager.send_line_message("ステップ1-1") 
             ids = ut.generate_daily_logs_id(id) 
+            lineManager.send_line_message("ステップ1-2") 
             wait_time = random.randint(1, 29)
+            lineManager.send_line_message("ステップ1-3") 
             await asyncio.sleep(wait_time)
+            lineManager.send_line_message("ステップ1-4") 
             data = await scraper.get_user_data(id, tag)
+            lineManager.send_line_message("ステップ1") 
             if not data:
                 today = datetime.now().strftime("%Y%m%d")
                 errors[f"{today}/{id}"] = {"code": "FETCH_ERROR", "message": "スクレイピングの取得の時にエラーが発生しました"}
                 continue
-            
+            lineManager.send_line_message("ステップ1-5") 
             today_id = ids[0]
             yesterday_log = documents.get(ids[1])  
             one_month_ago_log = documents.get(ids[2])  
+            lineManager.send_line_message("ステップ1-6") 
             today_log = ut.enrich_log_data(data, yesterday_log, one_month_ago_log)
             results[today_id] = today_log
         lineManager.send_line_message("ステップ2") 
