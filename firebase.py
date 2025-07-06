@@ -86,9 +86,6 @@ class FirebaseTikTokManager:
             return True
         except Exception as e:
             return False
-    
-    
-
 
 
 # # 使用例

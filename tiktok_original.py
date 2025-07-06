@@ -123,7 +123,6 @@ class SocialBladeTikTokScraper:
             return data
 
         except Exception as e:
-            print(f"エラーあああ: {e}")
             return None
         
         finally:
