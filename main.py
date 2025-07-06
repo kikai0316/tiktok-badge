@@ -64,15 +64,6 @@ async def main():
         if errors:
              if not await fb.bulk_write(errors,"error_logs"):
                 await lineManager.send_line_message("❌書き込みエラー\nエラーログのデータの書き込みに失敗しました")
-        
-        # システム（黒）に処理の結果を送信する
-        resultMessage="✅ 本日のTikTokデータの定期取得の処理が終了しました\n"
-        if len(results.keys())==len(users):
-            resultMessage += f"取得結果：{len(results.keys())}/{len(users)}件の成功\nお疲れ様でした🎉🎉🎉"
-        else:
-            resultMessage += f"取得結果：{len(results.keys())}/{len(users)}件の成功 \nエラーの件数：{len(errors.keys())}件"
-        
-        await lineManager.send_line_message(resultMessage)
 
         top_trend=await ut.get_top_trend_by_tag(results)
 
@@ -100,13 +91,24 @@ async def main():
                         lineManager.send_line_message_contact(message,send_id)
         else:
             lineManager.send_line_message_contact("❌送信先のアカウント取得に失敗しました")
+        
+         # システム（黒）に処理の結果を送信する
+        resultMessage="✅ 本日のTikTokデータの定期取得の処理が終了しました\n"
+        if len(results.keys())==len(users):
+            resultMessage += f"取得結果：{len(results.keys())}/{len(users)}件の成功\nお疲れ様でした🎉🎉🎉"
+        else:
+            resultMessage += f"取得結果：{len(results.keys())}/{len(users)}件の成功 \nエラーの件数：{len(errors.keys())}件"
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        resultMessage +=f"\n\n処理時間：{int(elapsed_time // 60)}分{int(elapsed_time % 60)}秒"
+
+        await lineManager.send_line_message(resultMessage)
 
     except Exception as e:
         lineManager.send_line_message("❌ 定期取得の処理で何らかのエラーが発生しました\n\nエラー内容は以下になります。")
         lineManager.send_line_message(str(e))
     
-    end_time = time.time()
-    duration = end_time - start_time
        
 
         
