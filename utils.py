@@ -33,10 +33,9 @@ class Utils:
         yesterday_log: Optional[Dict[str, Any]],
         one_month_ago_log: Optional[Dict[str, Any]],
     ) -> Dict[str, Any]:
-        try:
             enriched = getdata.copy()
             # 日付変換
-            today = datetime.strptime(getdata["取得日時"], "%Y/%m/%d")
+            today = datetime.now().strftime("%Y/%m/%d")
             created = datetime.strptime(getdata["アカウント作成日"], "%Y/%m/%d")
             enriched["取得日時"]=today
             # 動画 / 月（K列）
@@ -112,9 +111,6 @@ class Utils:
             enriched["成長トレンドスコア"] = round(min(10, max(-10, score)), 1)
 
             return enriched
-        except Exception as e:
-             lineManager = Line()
-             lineManager.send_line_message(f"エラaaー：{str(e)}") 
     
     def get_top_trend_by_tag(self, documents_dict: dict) -> dict:        
         tag_groups = defaultdict(list)

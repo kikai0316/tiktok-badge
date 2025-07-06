@@ -39,32 +39,23 @@ async def main():
             ids = ut.generate_daily_logs_id(id) 
             ids = ids[1:]
             doc_ids.extend(ids)
-        lineManager.send_line_message("ステップ1") 
         documents = fb.fetch_documents_by_ids(doc_ids) 
         
         # 今日のデータ、昨日、１っヶ月前のデータをもとに、今日の記録を作成する
         for id, tag in users:
-            lineManager.send_line_message("ステップ1-1") 
             ids = ut.generate_daily_logs_id(id) 
-            lineManager.send_line_message("ステップ1-2") 
             wait_time = random.randint(1, 29)
-            lineManager.send_line_message("ステップ1-3") 
             await asyncio.sleep(wait_time)
-            lineManager.send_line_message("ステップ1-4") 
             data = await scraper.get_user_data(id, tag)
-            lineManager.send_line_message("ステップ1") 
             if not data:
                 today = datetime.now().strftime("%Y%m%d")
                 errors[f"{today}/{id}"] = {"code": "FETCH_ERROR", "message": "スクレイピングの取得の時にエラーが発生しました"}
-                continue
-            lineManager.send_line_message("ステップ1-5") 
+                continue 
             today_id = ids[0]
             yesterday_log = documents.get(ids[1])  
             one_month_ago_log = documents.get(ids[2])  
-            lineManager.send_line_message("ステップ1-6") 
             today_log = ut.enrich_log_data(data, yesterday_log, one_month_ago_log)
             results[today_id] = today_log
-        lineManager.send_line_message("ステップ2") 
         # 取得成功と失敗時のログをfirebaseに保存する
         if results:
             if not fb.bulk_write(results): 
@@ -75,12 +66,10 @@ async def main():
                 lineManager.send_line_message("❌書き込みエラー\nエラーログのデータの書き込みに失敗しました")
 
         top_trend = ut.get_top_trend_by_tag(results) 
-        lineManager.send_line_message("ステップ3") 
         # スプレットシートに集計結果だけを記録する
         success = await gs.write_ranking_data(top_trend)
         if not success:
             lineManager.send_line_message("❌スプレットシート書き込みエラー\nスプレットシートの書き込みに失敗しました。")
-        lineManager.send_line_message("ステップ4") 
         # 結果（白）のアカウントに集計の結果を送信する
         lineManager.send_line_message_contact("✅昨日のTikTokインサイト自動解析システムによる集計が完了しました。")
         
@@ -102,7 +91,6 @@ async def main():
                         lineManager.send_line_message_contact(message, send_id) 
         else:
             lineManager.send_line_message_contact("❌送信先のアカウント取得に失敗しました") 
-        lineManager.send_line_message("ステップ5") 
         # システム（黒）に処理の結果を送信する
         resultMessage = "✅ 本日のTikTokデータの定期取得の処理が終了しました\n"
         if len(results.keys()) == len(users):
@@ -115,10 +103,9 @@ async def main():
         resultMessage += f"\n\n処理時間：{int(elapsed_time // 60)}分{int(elapsed_time % 60)}秒"
 
         lineManager.send_line_message(resultMessage)
-        lineManager.send_line_message("ステップ6") 
     except Exception as e:
         lineManager.send_line_message("❌ 定期取得の処理で何らかのエラーが発生しました\n\nエラー内容は以下になります。") 
-        lineManager.send_line_message(f"エラー：{str(e)}") 
+        lineManager.send_line_message(str(e))
     
        
 
