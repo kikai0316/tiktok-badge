@@ -81,6 +81,9 @@ async def main():
                 if tags:
                     # タグのListがあれば、そのタグだけを送信する
                     for tag in tags:
+                        if tag not in top_trend:
+                            continue
+                        lineManager.send_line_message_contact(f"テスト¥\n{top_trend[tag]}") 
                         message = ut.to_top5_message(tag, top_trend[tag])
                         lineManager.send_line_message_contact(message, send_id) 
                 else:
