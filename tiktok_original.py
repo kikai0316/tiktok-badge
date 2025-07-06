@@ -67,6 +67,7 @@ class SocialBladeTikTokScraper:
             await asyncio.sleep(5)
 
             # データ抽出
+            
             data = {}
 
             # ユーザー名の取得
