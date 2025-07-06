@@ -26,6 +26,7 @@ async def main():
     data=GoogleSheet().get_all_users_tag_map()
     lineManager.send_line_message(f"取得数：{len(data.values())}")
     fb.update_user_tags(data)
+    fb.initialize()
     lineManager.send_line_message("⚠️ 成功")
     # try:
     #     if not fb.initialize():

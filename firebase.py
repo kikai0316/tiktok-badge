@@ -93,7 +93,7 @@ class FirebaseTikTokManager:
         try:
             batch = self.db.batch()
             for user_id, data in user_tag_map.items():
-                doc_ref = self.db.collection("users").document(user_id)
+                doc_ref = self.db.collection("user").document(user_id)
                 batch.set(doc_ref, data, merge=True)  # merge=True で既存データを維持
             batch.commit()
             print("✅ 全ユーザーのタグを更新しました")
