@@ -112,7 +112,7 @@ async def main():
 
     except Exception as e:
         lineManager.send_line_message("❌ 定期取得の処理で何らかのエラーが発生しました\n\nエラー内容は以下になります。") 
-        lineManager.send_line_message(str(e)) 
+        lineManager.send_line_message(f"エラー：{str(e)}") 
     
        
 
