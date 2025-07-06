@@ -25,14 +25,14 @@ async def main():
     
     try:
         if not fb.initialize():
-            await lineManager.send_line_message("⚠️ 本日のTikTokデータの定期処理は実行されませんでした。\n\n理由：\nFireBase接続エラー")
+            lineManager.send_line_message("⚠️ 本日のTikTokデータの定期処理は実行されませんでした。\n\n理由：\nFireBase接続エラー")
             return
         users = fb.get_all_users() 
         if not users:
-            await lineManager.send_line_message("⚠️ 本日のTikTokデータの定期処理は実行されませんでした。\n\n理由：\nユーザーリストの取得に失敗しました。")
+            lineManager.send_line_message("⚠️ 本日のTikTokデータの定期処理は実行されませんでした。\n\n理由：\nユーザーリストの取得に失敗しました。")
             return
         
-        await lineManager.send_line_message("⏱️ 本日のTikTokデータの定期取得の処理を開始いたしました")  # awaitを追加
+        lineManager.send_line_message("⏱️ 本日のTikTokデータの定期取得の処理を開始いたしました")  # awaitを追加
         
         # まとめて昨日と１っヶ月前のデータを取得する
         for id, _ in users:
@@ -63,21 +63,21 @@ async def main():
         # 取得成功と失敗時のログをfirebaseに保存する
         if results:
             if not fb.bulk_write(results): 
-                await lineManager.send_line_message("❌書き込みエラー\n成功したデータの書き込みに失敗しました")
+                lineManager.send_line_message("❌書き込みエラー\n成功したデータの書き込みに失敗しました")
         
         if errors:
             if not fb.bulk_write(errors, "error_logs"): 
-                await lineManager.send_line_message("❌書き込みエラー\nエラーログのデータの書き込みに失敗しました")
+                lineManager.send_line_message("❌書き込みエラー\nエラーログのデータの書き込みに失敗しました")
 
         top_trend = ut.get_top_trend_by_tag(results) 
 
         # スプレットシートに集計結果だけを記録する
         success = await gs.write_ranking_data(top_trend)
         if not success:
-            await lineManager.send_line_message("❌スプレットシート書き込みエラー\nスプレットシートの書き込みに失敗しました。")
+            lineManager.send_line_message("❌スプレットシート書き込みエラー\nスプレットシートの書き込みに失敗しました。")
 
         # 結果（白）のアカウントに集計の結果を送信する
-        await lineManager.send_line_message_contact("✅昨日のTikTokインサイト自動解析システムによる集計が完了しました。")
+        lineManager.send_line_message_contact("✅昨日のTikTokインサイト自動解析システムによる集計が完了しました。")
         
         send_accounts = fb.get_all_fetch_data() 
         if send_accounts:
@@ -89,14 +89,14 @@ async def main():
                     # タグのListがあれば、そのタグだけを送信する
                     for tag in tags:
                         message = ut.to_top5_message(tag, top_trend[tag])
-                        await lineManager.send_line_message_contact(message, send_id) 
+                        lineManager.send_line_message_contact(message, send_id) 
                 else:
                     # タグのListがなければ、全てのタグを返す
                     for tag in top_trend.keys():
                         message = ut.to_top5_message(tag, top_trend[tag])
-                        await lineManager.send_line_message_contact(message, send_id) 
+                        lineManager.send_line_message_contact(message, send_id) 
         else:
-            await lineManager.send_line_message_contact("❌送信先のアカウント取得に失敗しました") 
+            lineManager.send_line_message_contact("❌送信先のアカウント取得に失敗しました") 
         
         # システム（黒）に処理の結果を送信する
         resultMessage = "✅ 本日のTikTokデータの定期取得の処理が終了しました\n"
@@ -109,11 +109,11 @@ async def main():
         elapsed_time = end_time - start_time
         resultMessage += f"\n\n処理時間：{int(elapsed_time // 60)}分{int(elapsed_time % 60)}秒"
 
-        await lineManager.send_line_message(resultMessage)
+        lineManager.send_line_message(resultMessage)
 
     except Exception as e:
-        await lineManager.send_line_message("❌ 定期取得の処理で何らかのエラーが発生しました\n\nエラー内容は以下になります。") 
-        await lineManager.send_line_message(str(e)) 
+        lineManager.send_line_message("❌ 定期取得の処理で何らかのエラーが発生しました\n\nエラー内容は以下になります。") 
+        lineManager.send_line_message(str(e)) 
     
        
 
