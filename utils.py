@@ -155,7 +155,8 @@ class Utils:
     def to_top5_message(self, tag:str,ranking: List[dict]) -> str:
         emojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣']
         message=f"{tag}のスコアランキング\n"
-        for i, (user_id,user_name, score, follower_diff, like_diff) in enumerate(ranking[:5]):
+        top5 = ranking[:5]
+        for i, (user_id,user_name, score, follower_diff, like_diff) in enumerate(top5):
             if i!=0:
                 message +="\n◇◇◇◇◇◇◇◇◇◇◇◇◇"
             message +=f"\n{emojis[i]}{user_id}\n🏷️{user_name}\n🔥{score} 👥{follower_diff:+} ❤️{like_diff:+}"
