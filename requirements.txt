@@ -66,7 +66,6 @@ jsonschema==4.19.1
 jsonschema-specifications==2023.7.1
 kiwisolver==1.4.5
 linkify-it-py==2.0.2
--e git+https://github.com/haotian-liu/LLaVA.git@7775b12d6b20cd69089be7a18ea02615a59621cd#egg=llava
 markdown-it-py==2.2.0
 markdown2==2.4.10
 MarkupSafe==2.1.3
