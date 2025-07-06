@@ -31,6 +31,7 @@ class Line:
             response = requests.post(url, headers=headers, json=payload)
             response.raise_for_status()  
         except Exception as e:
+            print(e)
             return
     
     def send_line_message_contact(self,message: str,send_id: Optional[str] = None):
