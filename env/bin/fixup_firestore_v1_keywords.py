@@ -1,4 +1,4 @@
-#!/Users/ikutadaisuke/development/tiktok_api_test/env/bin/python
+#!/Users/ikutadaisuke/development/tiktok_api_test/env/bin/python3
 # -*- coding: utf-8 -*-
 # Copyright 2025 Google LLC
 #
