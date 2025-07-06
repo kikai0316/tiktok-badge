@@ -86,6 +86,19 @@ class FirebaseTikTokManager:
             return True
         except Exception as e:
             return False
+    def update_user_tags(self, user_tag_map: dict[str, dict[str, str]]):
+        if not self.initialized:
+            raise RuntimeError("Firebase not initialized.")
+
+        try:
+            batch = self.db.batch()
+            for user_id, data in user_tag_map.items():
+                doc_ref = self.db.collection("users").document(user_id)
+                batch.set(doc_ref, data, merge=True)  # merge=True で既存データを維持
+            batch.commit()
+            print("✅ 全ユーザーのタグを更新しました")
+        except Exception as e:
+            print(f"❌ Firestore 書き込みエラー: {e}")
 
 
 # # 使用例

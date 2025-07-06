@@ -104,9 +104,29 @@ class GoogleSheet:
                 return False
         
         return True
+    def get_all_users_tag_map(self) -> dict[str, dict[str, str]]:
+        try:
+            worksheet = self.spreadsheet.worksheet("@all_users")
+            records = worksheet.get_all_values()
+
+            result = {}
+
+            for row in records[2:]:  # 3行目（インデックス2）から下を処理
+                if len(row) >= 2:
+                    user_id = row[0].strip()
+                    tag = row[1].strip()
+                    if user_id:
+                        result[user_id] = {"tag": tag}
+
+            return result
+        except Exception as e:
+            print(f"❌ シート読み取りエラー: {e}")
+            return {}
 
 def main():
     """使用例"""
+    data=GoogleSheet().get_all_users_tag_map()
+    print(data)
 
     # test_user_data = {
     #     "ユーザーID": "test_121",
