@@ -153,7 +153,7 @@ class Utils:
         
         return result
     
-    def to_top5_message(self, tag:str,users: List[dict]) -> str:
+    def to_top5_message(self, tag:str,ranking: List[dict]) -> str:
         emojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣']
         message=f"{tag}のスコアランキング\n"
         for i, (user_id,user_name, score, follower_diff, like_diff) in enumerate(ranking[:5]):
