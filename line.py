@@ -33,7 +33,7 @@ class Line:
         except Exception as e:
             return
     
-    def send_line_message_contact(message: str,send_id: Optional[str] = None):
+    def send_line_message_contact(self,message: str,send_id: Optional[str] = None):
         load_dotenv()
         token=os.getenv('LINE_TOKEN_CONTACT')
         url = "https://api.line.me/v2/bot/message/push"

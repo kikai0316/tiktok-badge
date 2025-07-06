@@ -71,14 +71,13 @@ async def main():
         if not success:
             lineManager.send_line_message("❌スプレットシート書き込みエラー\nスプレットシートの書き込みに失敗しました。")
         # 結果（白）のアカウントに集計の結果を送信する
-        lineManager.send_line_message_contact("✅昨日のTikTokインサイト自動解析システムによる集計が完了しました。")
         
         send_accounts = fb.get_all_fetch_data() 
         if send_accounts:
             for account_data in send_accounts.values():
                 send_id = account_data.get("id")
                 tags = account_data.get("tags") 
-                
+                lineManager.send_line_message_contact("✅昨日のTikTokインサイト自動解析システムによる集計が完了しました。",send_id)
                 if tags:
                     # タグのListがあれば、そのタグだけを送信する
                     for tag in tags:
