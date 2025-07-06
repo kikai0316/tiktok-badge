@@ -156,9 +156,9 @@ class Utils:
         emojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣']
         message=f"{tag}のスコアランキング\n"
         top5 = ranking[:5]
-        for i, (user_id,user_name, score, follower_diff, like_diff) in enumerate(top5):
+        for i, r in enumerate(top5):
             if i!=0:
                 message +="\n◇◇◇◇◇◇◇◇◇◇◇◇◇"
-            message +=f"\n{emojis[i]}{user_id}\n🏷️{user_name}\n🔥{score} 👥{follower_diff:+} ❤️{like_diff:+}"
+            message +=f"\n{emojis[i]}{r.get("ユーザーID")}\n🏷️{r.get("表示名")}\n🔥{r.get("成長トレンドスコア")} 👥{r.get("フォロワー前日比"):+} ❤️{r.get("総いいね数前日比"):+}"
         return message
     
