@@ -38,13 +38,13 @@ async def main():
         for id, _ in users:
             ids = ut.generate_daily_logs_id(id) 
             ids = ids[1:]
-            print(f"idああああ{ids}")
             doc_ids.extend(ids)
         
         documents = fb.fetch_documents_by_ids(doc_ids) 
         
         # 今日のデータ、昨日、１っヶ月前のデータをもとに、今日の記録を作成する
         for id, tag in users:
+            ids = ut.generate_daily_logs_id(id) 
             wait_time = random.randint(1, 29)
             await asyncio.sleep(wait_time)
             data = await scraper.get_user_data(id, tag)
@@ -53,7 +53,6 @@ async def main():
                 errors[f"{today}/{id}"] = {"code": "FETCH_ERROR", "message": "スクレイピングの取得の時にエラーが発生しました"}
                 continue
             
-
             today_id = ids[0]
             yesterday_log = documents.get(ids[1])  
             one_month_ago_log = documents.get(ids[2])  
