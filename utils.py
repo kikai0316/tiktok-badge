@@ -115,7 +115,8 @@ class Utils:
     
     def get_top_trend_by_tag(self, documents_dict: dict) -> dict:        
         tag_groups = defaultdict(list)
-        all_users = [] 
+        all_users = []
+
         for doc_id, user_data in documents_dict.items():
             tag = user_data.get("タグ", "").strip()
             if not tag:
@@ -125,31 +126,34 @@ class Utils:
             user_data_with_id["original_tag"] = tag  
 
             base_tag = tag.split("@")[0].strip() if "@" in tag else tag
-            tag_groups[base_tag].append(user_data_with_id)
-            
-            tag_groups[tag].append(user_data_with_id)
-            
+
+            # base_tagに追加（document_idがまだ無い場合）
+            if not any(u["document_id"] == doc_id for u in tag_groups[base_tag]):
+                tag_groups[base_tag].append(user_data_with_id)
+
+            # tagに追加（document_idがまだ無い場合）
+            if not any(u["document_id"] == doc_id for u in tag_groups[tag]):
+                tag_groups[tag].append(user_data_with_id)
+
             all_users.append(user_data_with_id)
-        
+
         result = {}
-        
-        # 各タググループのランキング
+
         for tag, users in tag_groups.items():
             sorted_users = sorted(
-                users, 
-                key=lambda x: x.get("成長トレンドスコア", 0), 
+                users,
+                key=lambda x: x.get("成長トレンドスコア", 0),
                 reverse=True
             )
             result[tag] = sorted_users
-        
-        # 総合ランキング
+
         all_sorted = sorted(
             all_users,
             key=lambda x: x.get("成長トレンドスコア", 0),
             reverse=True
         )
         result["総合"] = all_sorted
-        
+
         return result
     
     def to_top5_message(self, tag:str,ranking: List[dict]) -> str:
