@@ -35,9 +35,10 @@ class Utils:
     ) -> Dict[str, Any]:
             enriched = getdata.copy()
             # 日付変換
-            today = datetime.now().strftime("%Y/%m/%d")
+            today_str = datetime.now().strftime("%Y/%m/%d")
+            today = datetime.strptime(today_str, "%Y/%m/%d")
             created = datetime.strptime(getdata["アカウント作成日"], "%Y/%m/%d")
-            enriched["取得日時"]=today
+            enriched["取得日時"]=today_str
             # 動画 / 月（K列）
             month_diff = (today.year - created.year) * 12 + (today.month - created.month)
             enriched["動画 / 月"] = round(getdata["動画数"] / month_diff, 2) if month_diff > 0 else 0
